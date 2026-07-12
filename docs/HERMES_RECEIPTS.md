@@ -14,6 +14,7 @@ replayable on this machine via "hermes sessions list" / resume by ID.
 | 20260712_123759_662177 | Chunk 2: dentassist-clinic skill + ElevenLabs voice pipeline |
 | 20260712_124533_0193b0 | Chunk 3: dashboard (landing + waitlist + lead board) |
 | 20260712_134747_1f209f | Chunk 4: emergency triage, qualification, voice-in, dashboard polish |
+| 20260712_145025_0978f1 | Chunk 5: teammate landing page port + Convex signups and visit tracking |
 
 ## Runtime sessions (product IS Hermes)
 

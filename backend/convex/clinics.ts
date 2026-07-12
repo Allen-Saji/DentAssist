@@ -28,3 +28,13 @@ export const current = query({
     return clinic === null ? null : { _id: clinic._id, name: clinic.name };
   },
 });
+
+export const setPhone = internalMutation({
+  args: { phoneDigits: v.string() },
+  handler: async (ctx, { phoneDigits }) => {
+    const clinic = await ctx.db.query("clinics").first();
+    if (clinic === null) return { error: "Clinic not found" } as const;
+    await ctx.db.patch(clinic._id, { phoneDigits });
+    return { ok: true } as const;
+  },
+});

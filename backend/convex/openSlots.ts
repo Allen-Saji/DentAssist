@@ -14,7 +14,7 @@ export const list = query({
     return slots
       .filter((slot) => slot.ts > now)
       .sort((a, b) => a.ts - b.ts)
-      .slice(0, 6)
+      .slice(0, 30)
       .map((slot) => ({ _id: slot._id, ts: slot.ts, label: slot.label }));
   },
 });
@@ -33,6 +33,18 @@ export const seed = internalMutation({
       });
     }
     return { ok: true, count: slots.length } as const;
+  },
+});
+
+export const clearOpen = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const open = await ctx.db
+      .query("openSlots")
+      .withIndex("by_status", (q) => q.eq("status", "open"))
+      .collect();
+    for (const slot of open) await ctx.db.delete(slot._id);
+    return { removed: open.length };
   },
 });
 

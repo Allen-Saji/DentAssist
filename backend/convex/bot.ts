@@ -22,7 +22,7 @@ export const context = query({
     )
       .filter((slot) => slot.ts > now)
       .sort((a, b) => a.ts - b.ts)
-      .slice(0, 4)
+      .slice(0, 30)
       .map((slot) => ({ _id: slot._id, label: slot.label }));
     return { lead, clinic, openSlots };
   },

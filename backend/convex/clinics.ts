@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation } from "./functions";
+import { internalMutation, query } from "./functions";
 
 const serviceValidator = v.object({
   name: v.string(),
@@ -18,5 +18,13 @@ export const create = internalMutation({
   },
   handler: async (ctx, clinic) => {
     return await ctx.db.insert("clinics", clinic);
+  },
+});
+
+export const current = query({
+  args: {},
+  handler: async (ctx) => {
+    const clinic = await ctx.db.query("clinics").first();
+    return clinic === null ? null : { _id: clinic._id, name: clinic.name };
   },
 });

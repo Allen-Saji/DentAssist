@@ -132,6 +132,7 @@ export const listLeads = query({
           ...lead,
           latestEventTs,
           heldSlot,
+          events: events.sort((a, b) => b.ts - a.ts),
           responseTimeMs:
             firstResponse === undefined ? null : firstResponse.ts - lead.firstMissedAt,
         };

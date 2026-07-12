@@ -1,4 +1,4 @@
-# CallCatch architecture
+# DentAssist architecture
 
 ## Components
 

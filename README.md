@@ -1,8 +1,8 @@
-# CallCatch
+# DentAssist
 
 The front desk that never misses a call.
 
-Clinics miss 20-25 calls a week while staff are mid-procedure. A single implant consult is worth Rs 60,000, and a lead who calls twice without an answer books a competitor the same day. CallCatch turns every missed call into an instant follow-up conversation and a tracked lead, within two minutes, without the front desk lifting a finger.
+Clinics miss 20-25 calls a week while staff are mid-procedure. A single implant consult is worth Rs 60,000, and a lead who calls twice without an answer books a competitor the same day. DentAssist turns every missed call into an instant follow-up conversation and a tracked lead, within two minutes, without the front desk lifting a finger.
 
 ## How it works
 
@@ -62,7 +62,7 @@ Environment:
 | TELEGRAM_BOT_TOKEN | Hermes gateway | clinic assistant bot |
 | ELEVENLABS_API_KEY | Hermes / scripts | voice-note TTS |
 | CONVEX_URL | skill, dashboard | backend deployment URL |
-| CALLCATCH_WEBHOOK_SECRET | Convex, MacroDroid | shared secret for the missed-call webhook |
+| DENTASSIST_WEBHOOK_SECRET | Convex, MacroDroid | shared secret for the missed-call webhook |
 
 MacroDroid macro on the clinic handset: trigger "Call Missed" with two actions, an HTTP POST of the caller number to the Convex webhook and an SMS to the caller containing the bot deep link.
 

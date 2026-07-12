@@ -39,8 +39,8 @@ router.route({
   path: "/missed-call",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
-    const secret = process.env.CALLCATCH_WEBHOOK_SECRET;
-    if (secret && request.headers.get("x-callcatch-secret") !== secret) {
+    const secret = process.env.DENTASSIST_WEBHOOK_SECRET;
+    if (secret && request.headers.get("x-dentassist-secret") !== secret) {
       return json({ error: "Unauthorized" }, 401);
     }
 

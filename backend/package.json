@@ -1,5 +1,5 @@
 {
-  "name": "callcatch-backend",
+  "name": "dentassist-backend",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -31,7 +31,7 @@ Silent leads are re-nudged at 24h and 72h, then marked cold. Every conversation 
 ## Stack
 
 - Hermes: agent harness. The assistant patients talk to runs on Hermes with a clinic skill; Hermes also built most of this repo as coding partner.
-- Convex: leads, events, slots, clinic briefs, crons, and the missed-call HTTP webhook.
+- Convex: leads, events, slots, clinic briefs, crons, website signups, page visits, and the missed-call HTTP webhook.
 - Telegram Bot API: conversation channel for day one. WhatsApp Business Cloud API (registered clinic number) is the production channel on the roadmap.
 - ElevenLabs: text-to-speech for voice-note replies.
 - Cloudflare Pages: hosts the lead board.
@@ -71,6 +71,10 @@ MacroDroid macro on the clinic handset: trigger "Call Missed" with two actions, 
 Built from scratch at the Hermes Buildathon (GrowthX x Nous Research), Gurugram, on July 12, 2026, during the 8-hour on-site sprint. Expect hackathon edges; the lead pipeline, conversations, and payments shown in the demo are real.
 
 Built by Allen Saji (engineering) and team (go-to-market).
+
+The landing page design was contributed by the sales teammate and ported from
+[dentassist-missed-call-recovery](https://github.com/Ed-coddy66/dentassist-missed-call-recovery).
+Landing-page signups and visit events are stored in Convex.
 
 ## License
 

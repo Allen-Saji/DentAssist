@@ -23,6 +23,8 @@ type Lead = {
   firstMissedAt: number;
   latestEventTs: number;
   revenueAtStake?: number;
+  revenueAtStakeMin?: number;
+  revenueAtStakeMax?: number;
   responseTimeMs: number | null;
   heldSlot: HeldSlot;
   events: Event[];
@@ -80,6 +82,27 @@ function formatMoney(amount?: number): string {
         currency: "INR",
         maximumFractionDigits: 0,
       }).format(amount);
+}
+
+function potentialRange(lead: Lead): [number, number] | null {
+  if (lead.revenueAtStakeMin !== undefined && lead.revenueAtStakeMax !== undefined) {
+    return [lead.revenueAtStakeMin, lead.revenueAtStakeMax];
+  }
+  return lead.revenueAtStake === undefined
+    ? null
+    : [lead.revenueAtStake, lead.revenueAtStake];
+}
+
+function formatPotential(lead: Lead): string {
+  const range = potentialRange(lead);
+  if (range === null) return "Not estimated";
+  return range[0] === range[1]
+    ? formatMoney(range[0])
+    : `${formatMoney(range[0])} - ${formatMoney(range[1])}`;
+}
+
+function isUrgent(lead: Lead): boolean {
+  return lead.events.some((event) => event.type === "emergency_flagged");
 }
 
 function formatSlot(timestamp: number): string {
@@ -193,12 +216,32 @@ function Board(): ReactElement {
     ? null
     : responded.reduce((total, lead) => total + (lead.responseTimeMs ?? 0), 0) / responded.length;
   const slotsHeld = todayLeads.filter((lead) => lead.heldSlot !== null).length;
+  const sortedLeads = useMemo(
+    () => [...(leads ?? [])].sort((a, b) => {
+      const urgencyDifference = Number(isUrgent(b)) - Number(isUrgent(a));
+      return urgencyDifference || b.latestEventTs - a.latestEventTs;
+    }),
+    [leads],
+  );
+  const potentialPipeline = (leads ?? []).reduce(
+    (total, lead) => {
+      const range = potentialRange(lead);
+      return range === null
+        ? total
+        : [total[0] + range[0], total[1] + range[1]] as [number, number];
+    },
+    [0, 0] as [number, number],
+  );
+  const pipelineLabel = potentialPipeline[0] === potentialPipeline[1]
+    ? formatMoney(potentialPipeline[0])
+    : `${formatMoney(potentialPipeline[0])} - ${formatMoney(potentialPipeline[1])}`;
 
   const metrics = useMemo(() => [
     { label: "Leads today", value: leads === undefined ? "-" : String(todayLeads.length) },
-    { label: "Avg response", value: leads === undefined ? "-" : formatResponse(averageResponse) },
+    { label: "Avg first-response time", value: leads === undefined ? "-" : formatResponse(averageResponse) },
     { label: "Slots held", value: leads === undefined ? "-" : String(slotsHeld) },
-  ], [averageResponse, leads, slotsHeld, todayLeads.length]);
+    { label: "Potential pipeline", value: leads === undefined ? "-" : pipelineLabel },
+  ], [averageResponse, leads, pipelineLabel, slotsHeld, todayLeads.length]);
 
   return (
     <main className="board-page">
@@ -238,20 +281,23 @@ function Board(): ReactElement {
               <table>
                 <thead>
                   <tr>
-                    <th>Phone</th><th>Stage</th><th>Response</th><th>Revenue at stake</th><th>Last activity</th><th>Held slot</th>
+                    <th>Phone</th><th>Stage</th><th>Response</th><th>Potential pipeline</th><th>Last activity</th><th>Held slot</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {leads.map((lead) => (
+                  {sortedLeads.map((lead) => (
                     <tr
                       key={lead._id}
-                      className={lead._id === selectedId ? "selected" : ""}
+                      className={`${lead._id === selectedId ? "selected" : ""} ${isUrgent(lead) ? "urgent-row" : ""}`.trim()}
                       onClick={() => setSelectedId(lead._id)}
                     >
-                      <td><button className="row-button" type="button" onClick={() => setSelectedId(lead._id)}>{formatPhone(lead.phoneDigits)}</button></td>
+                      <td>
+                        <button className="row-button" type="button" onClick={() => setSelectedId(lead._id)}>{formatPhone(lead.phoneDigits)}</button>
+                        {isUrgent(lead) && <span className="urgent-badge">URGENT</span>}
+                      </td>
                       <td><span className={`stage stage-${lead.stage}`}>{stageLabels[lead.stage]}</span></td>
                       <td className="numeric">{formatResponse(lead.responseTimeMs)}</td>
-                      <td className="numeric">{formatMoney(lead.revenueAtStake)}</td>
+                      <td className="numeric potential-value">{formatPotential(lead)}</td>
                       <td>{relativeTime(lead.latestEventTs, now)}</td>
                       <td>{lead.heldSlot === null ? "-" : formatSlot(lead.heldSlot.requestedTime)}</td>
                     </tr>

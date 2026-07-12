@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactElement } from "react";
 import { makeFunctionReference } from "convex/server";
 import { useQuery } from "convex/react";
 import Landing from "./Landing";
+import Analytics from "./Analytics";
 
 type Stage = "missed" | "sms_sent" | "chatting" | "slot_held" | "booked" | "cold";
 
@@ -263,5 +264,7 @@ function Board(): ReactElement {
 }
 
 export default function App(): ReactElement {
-  return window.location.pathname === "/board" ? <Board /> : <Landing />;
+  if (window.location.pathname === "/board") return <Board />;
+  if (window.location.pathname === "/analytics") return <Analytics />;
+  return <Landing />;
 }

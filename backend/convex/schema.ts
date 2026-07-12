@@ -35,6 +35,8 @@ const schema = defineSchema({
     lastEventAt: v.number(),
     service: v.optional(v.string()),
     revenueAtStake: v.optional(v.number()),
+    revenueAtStakeMin: v.optional(v.number()),
+    revenueAtStakeMax: v.optional(v.number()),
     notes: v.optional(v.string()),
   })
     .index("by_phone", ["phoneDigits"])

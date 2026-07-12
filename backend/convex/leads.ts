@@ -71,6 +71,51 @@ export const logTurn = mutation({
   },
 });
 
+export const updateQualification = mutation({
+  args: {
+    leadId: v.id("leads"),
+    service: v.optional(v.string()),
+    revenueAtStakeMin: v.optional(v.number()),
+    revenueAtStakeMax: v.optional(v.number()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (
+    ctx,
+    { leadId, service, revenueAtStakeMin, revenueAtStakeMax, notes },
+  ) => {
+    const lead = await ctx.db.get(leadId);
+    if (lead === null) throw new Error("Lead not found");
+
+    if (service === undefined) {
+      if (revenueAtStakeMin !== undefined || revenueAtStakeMax !== undefined) {
+        throw new Error("Revenue range requires a matched service");
+      }
+    } else {
+      const clinic = await ctx.db.get(lead.clinicId);
+      if (clinic === null) throw new Error("Clinic not found");
+      const matchedService = clinic.services.find((candidate) => candidate.name === service);
+      if (matchedService === undefined) throw new Error("Service not found in clinic record");
+      if (
+        revenueAtStakeMin !== matchedService.priceMin ||
+        revenueAtStakeMax !== matchedService.priceMax
+      ) {
+        throw new Error("Revenue range does not match clinic record");
+      }
+    }
+
+    const ts = Date.now();
+    const qualification = { service, revenueAtStakeMin, revenueAtStakeMax, notes };
+    await ctx.db.patch(leadId, { ...qualification, lastEventAt: ts });
+    await ctx.db.insert("events", {
+      leadId,
+      ts,
+      type: "qualification_updated",
+      payload: qualification,
+    });
+    return await ctx.db.get(leadId);
+  },
+});
+
 export const holdSlot = mutation({
   args: { leadId: v.id("leads"), requestedTime: v.number() },
   handler: async (ctx, { leadId, requestedTime }) => {

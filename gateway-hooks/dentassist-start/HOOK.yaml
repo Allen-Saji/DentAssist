@@ -1,0 +1,4 @@
+name: dentassist-start
+description: Greet patients arriving via missed-call deep links and link their Telegram to the Convex lead
+events:
+  - "command:start"

@@ -60,6 +60,13 @@ const schema = defineSchema({
   })
     .index("by_lead", ["leadId"])
     .index("by_status", ["status"]),
+  openSlots: defineTable({
+    clinicId: v.id("clinics"),
+    ts: v.number(),
+    label: v.string(),
+    status: v.union(v.literal("open"), v.literal("booked")),
+    bookedLeadId: v.optional(v.id("leads")),
+  }).index("by_status", ["status"]),
   waitlist: defineTable({
     email: v.string(),
     source: v.string(),

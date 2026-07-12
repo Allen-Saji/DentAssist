@@ -1,4 +1,5 @@
-import { httpRouter, makeFunctionReference } from "convex/server";
+import { httpRouter } from "convex/server";
+import { internal } from "./_generated/api";
 import { httpAction } from "./functions";
 
 function json(body: unknown, status = 200): Response {
@@ -20,12 +21,6 @@ async function parseBody(request: Request): Promise<Record<string, unknown>> {
   }
   throw new Error("Unsupported content type");
 }
-
-const recordMissedCall = makeFunctionReference<
-  "mutation",
-  { phoneDigits: string; ts: number; clinic?: string },
-  { leadId: string } | { error: string }
->("missedCalls:recordMissedCall");
 
 const router = httpRouter();
 
@@ -58,7 +53,11 @@ router.route({
     const parsedTs = typeof body.ts === "number" ? body.ts : Number(body.ts);
     const ts = Number.isFinite(parsedTs) ? parsedTs : Date.now();
     const clinic = typeof body.clinic === "string" ? body.clinic : undefined;
-    const result = await ctx.runMutation(recordMissedCall, { phoneDigits, ts, clinic });
+    const result = await ctx.runMutation(internal.missedCalls.recordMissedCall, {
+      phoneDigits,
+      ts,
+      clinic,
+    });
     if ("error" in result) return json({ error: result.error }, 400);
     return json({ leadId: result.leadId });
   }),

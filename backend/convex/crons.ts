@@ -1,4 +1,5 @@
-import { cronJobs, makeFunctionReference } from "convex/server";
+import { cronJobs } from "convex/server";
+import { internal } from "./_generated/api";
 import { internalMutation } from "./functions";
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -70,9 +71,7 @@ const crons = cronJobs();
 crons.interval(
   "process lead maintenance",
   { minutes: 10 },
-  makeFunctionReference<"mutation", Record<string, never>, void>(
-    "crons:processLeadMaintenance",
-  ),
+  internal.crons.processLeadMaintenance,
 );
 
 export default crons;

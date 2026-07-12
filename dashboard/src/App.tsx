@@ -232,9 +232,12 @@ function Board(): ReactElement {
     },
     [0, 0] as [number, number],
   );
-  const pipelineLabel = potentialPipeline[0] === potentialPipeline[1]
-    ? formatMoney(potentialPipeline[0])
-    : `${formatMoney(potentialPipeline[0])} - ${formatMoney(potentialPipeline[1])}`;
+  const estimatedLeadCount = (leads ?? []).filter((lead) => potentialRange(lead) !== null).length;
+  const pipelineLabel = estimatedLeadCount === 0
+    ? "Not estimated"
+    : potentialPipeline[0] === potentialPipeline[1]
+      ? formatMoney(potentialPipeline[0])
+      : `${formatMoney(potentialPipeline[0])} - ${formatMoney(potentialPipeline[1])}`;
 
   const metrics = useMemo(() => [
     { label: "Leads today", value: leads === undefined ? "-" : String(todayLeads.length) },

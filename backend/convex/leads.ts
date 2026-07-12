@@ -21,6 +21,20 @@ export const getByDigits = query({
   },
 });
 
+export const getByTgUser = query({
+  args: { tgUserId: v.string() },
+  handler: async (ctx, { tgUserId }) => {
+    const lead = await ctx.db
+      .query("leads")
+      .withIndex("by_tgUser", (q) => q.eq("tgUserId", tgUserId))
+      .order("desc")
+      .first();
+    if (lead === null) return null;
+    const clinic = await ctx.db.get(lead.clinicId);
+    return { lead, clinic };
+  },
+});
+
 export const linkTelegram = mutation({
   args: {
     digits: v.string(),

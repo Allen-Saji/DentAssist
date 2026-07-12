@@ -1,6 +1,7 @@
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { makeFunctionReference } from "convex/server";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import Landing from "./Landing";
 
 type Stage = "missed" | "sms_sent" | "chatting" | "slot_held" | "booked" | "cold";
 
@@ -32,11 +33,6 @@ type Lead = {
 
 type Clinic = { _id: string; name: string } | null;
 
-const addToWaitlist = makeFunctionReference<
-  "mutation",
-  { email: string; source: string },
-  string
->("waitlist:add");
 const listLeads = makeFunctionReference<"query", Record<string, never>, Lead[]>(
   "leads:listLeads",
 );
@@ -122,85 +118,6 @@ function payloadText(payload: unknown): string {
   } catch {
     return "Event details unavailable";
   }
-}
-
-function Landing(): ReactElement {
-  const add = useMutation(addToWaitlist);
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [error, setError] = useState("");
-
-  async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    setStatus("submitting");
-    setError("");
-    try {
-      await add({ email, source: "landing" });
-      setStatus("success");
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not join the waitlist");
-      setStatus("error");
-    }
-  }
-
-  return (
-    <main className="landing">
-      <nav className="landing-nav" aria-label="Primary navigation">
-        <a className="brand" href="/">DentAssist</a>
-        <a className="board-link" href="/board">Lead board</a>
-      </nav>
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">AI reception for dental clinics</p>
-          <h1>The front desk that never misses a call</h1>
-          <p className="hero-sub">Every missed call gets an instant response and a clear path to a booked appointment.</p>
-          {status === "success" ? (
-            <div className="success" role="status">
-              <strong>You are on the list.</strong>
-              <span>We will reach out when your clinic can get started.</span>
-            </div>
-          ) : (
-            <form className="waitlist-form" onSubmit={submit} noValidate>
-              <label htmlFor="email">Work email</label>
-              <div className="form-row">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="you@clinic.com"
-                  aria-describedby={status === "error" ? "email-error" : undefined}
-                />
-                <button type="submit" disabled={status === "submitting"}>
-                  {status === "submitting" ? "Joining..." : "Join waitlist"}
-                </button>
-              </div>
-              {status === "error" && <p id="email-error" className="form-error">{error}</p>}
-            </form>
-          )}
-        </div>
-        <div className="hero-proof" aria-label="DentAssist response flow">
-          <div className="proof-step">
-            <span>Missed call</span>
-            <strong>Patient could not reach the desk</strong>
-          </div>
-          <div className="proof-line" />
-          <div className="proof-step active">
-            <span>Instant follow-up</span>
-            <strong>DentAssist starts the conversation</strong>
-          </div>
-          <div className="proof-line" />
-          <div className="proof-step">
-            <span>Appointment</span>
-            <strong>A suitable slot is held for the patient</strong>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
 }
 
 function Board(): ReactElement {
